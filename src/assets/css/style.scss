@@ -61,3 +61,28 @@ button {
     transform: rotate(360deg);
   }
 }
+.text-center {
+  text-align: center;
+}
+.results .card-body ul {
+  margin-left: 15px;
+  margin-bottom: 25px;
+}
+.results .card-body ul li::marker {
+  color: #007bff;
+}
+button {
+  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+  box-shadow: 0 6px 18px rgba(0, 114, 255, 0.4);
+  border: 0;
+  border-radius: 40px;
+  color: #fff;
+  font-weight: 600;
+}
+button:hover {
+  background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);
+  box-shadow: 0 8px 25px rgba(0, 114, 255, 0.6);
+}
+h1,h2,h3,h4,h5 {
+  color: #000;
+}

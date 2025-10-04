@@ -4,18 +4,18 @@
   .icon {
     position: absolute;
     left: 0.75rem;
-    top: 0.75rem;
-    color: #3b82f6;
+    top: 0.9rem;
+    color: #007bff;
   }
 
   input {
     width: 100%;
     padding: 0.75rem 0.75rem 0.75rem 2.5rem;
     border: 1px solid #d1d5db;
-    border-radius: 1rem;
+    border-radius: 30px;
+    height: 50px;
     font-size: 1rem;
     outline: none;
-
     &:focus {
       border-color: #3b82f6;
       box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
@@ -31,7 +31,7 @@
   }
   .error-text {
     color: #ef4444;
-    font-size: 0.875rem;
+    font-size: 0.76rem;
     margin-top: 0.25rem;
   }
 }

@@ -51,6 +51,9 @@ const TravelForm = ({ onSubmit }: FormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="planner-form">
+      <div className="text-center mb-4">
+          <h2>Poc</h2>
+      </div>
       <div className="input-grid">
         <InputField
           icon={Plane}
