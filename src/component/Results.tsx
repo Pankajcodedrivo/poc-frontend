@@ -5,23 +5,16 @@ import SendEmail from "./SendEmail";
 
 interface ResultsProps {
   data: {
-    visa: string; // HTML string
+    visa: string;
     budget: {
       totalUSD: number;
-      totalLocal: number;
       perDayUSD: number;
-      perDayLocal: number;
       breakdown: {
-        accommodationUSD: number;
-        accommodationLocal: number;
-        foodUSD: number;
-        foodLocal: number;
-        transportationUSD: number;
-        transportationLocal: number;
-        activitiesUSD: number;
-        activitiesLocal: number;
-        stayUSD: number;
-        stayLocal: number;
+        accommodation: number;
+        food: number;
+        transportation: number;
+        activities: number;
+        stay: number;
       };
     };
     local: {
@@ -30,6 +23,7 @@ interface ResultsProps {
     };
     currency: {
       localCurrency: string;
+      exchangeRate: number; // New field
       exchangeTips: string[];
     };
     safety: {
@@ -81,13 +75,13 @@ const Results = ({ data }: ResultsProps) => {
       startY: y + 5,
       head: [["Category", "USD", data.currency.localCurrency]],
       body: [
-        ["Accommodation", data.budget.breakdown.accommodationUSD, data.budget.breakdown.accommodationLocal],
-        ["Food", data.budget.breakdown.foodUSD, data.budget.breakdown.foodLocal],
-        ["Transportation", data.budget.breakdown.transportationUSD, data.budget.breakdown.transportationLocal],
-        ["Activities", data.budget.breakdown.activitiesUSD, data.budget.breakdown.activitiesLocal],
-        ["Stay", data.budget.breakdown.stayUSD, data.budget.breakdown.stayLocal],
-        ["Total / Day", data.budget.perDayUSD, data.budget.perDayLocal],
-        ["Total Trip", data.budget.totalUSD, data.budget.totalLocal],
+        ["Accommodation", data.budget.breakdown.accommodation, (data.budget.breakdown.accommodation * data.currency.exchangeRate).toFixed(2)],
+        ["Food", data.budget.breakdown.food, (data.budget.breakdown.food * data.currency.exchangeRate).toFixed(2)],
+        ["Transportation", data.budget.breakdown.transportation, (data.budget.breakdown.transportation * data.currency.exchangeRate).toFixed(2)],
+        ["Activities", data.budget.breakdown.activities, (data.budget.breakdown.activities * data.currency.exchangeRate).toFixed(2)],
+        ["Stay", data.budget.breakdown.stay, (data.budget.breakdown.stay * data.currency.exchangeRate).toFixed(2)],
+        ["Total / Day", data.budget.perDayUSD, (data.budget.perDayUSD * data.currency.exchangeRate).toFixed(2)],
+        ["Total Trip", data.budget.totalUSD, (data.budget.totalUSD * data.currency.exchangeRate).toFixed(2)],
       ],
     });
     y = (doc as any).lastAutoTable.finalY + 15;
@@ -100,6 +94,7 @@ const Results = ({ data }: ResultsProps) => {
     // Currency
     y = addText("Currency & Exchange Tips", 14, y + 10, 10, 14);
     y = addText(`Local Currency: ${data.currency.localCurrency}`, 14, y);
+    y = addText(`Exchange Rate (USD → ${data.currency.localCurrency}): ${data.currency.exchangeRate}`, 14, y);
     data.currency.exchangeTips.forEach((tip) => {
       y = addText(`- ${tip}`, 14, y);
     });
@@ -132,29 +127,26 @@ const Results = ({ data }: ResultsProps) => {
       <Card title="Budget Breakdown">
         <ul>
           <li>
-            Accommodation: ${data.budget.breakdown.accommodationUSD} (~{data.budget.breakdown.accommodationLocal}{" "}
-            {data.currency.localCurrency})
+            Accommodation: ${data.budget.breakdown.accommodation} (~{(data.budget.breakdown.accommodation * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
           </li>
           <li>
-            Food: ${data.budget.breakdown.foodUSD} (~{data.budget.breakdown.foodLocal} {data.currency.localCurrency})
+            Food: ${data.budget.breakdown.food} (~{(data.budget.breakdown.food * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
           </li>
           <li>
-            Transportation: ${data.budget.breakdown.transportationUSD} (~{data.budget.breakdown.transportationLocal}{" "}
-            {data.currency.localCurrency})
+            Transportation: ${data.budget.breakdown.transportation} (~{(data.budget.breakdown.transportation * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
           </li>
           <li>
-            Activities: ${data.budget.breakdown.activitiesUSD} (~{data.budget.breakdown.activitiesLocal}{" "}
-            {data.currency.localCurrency})
+            Activities: ${data.budget.breakdown.activities} (~{(data.budget.breakdown.activities * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
           </li>
           <li>
-            Stay: ${data.budget.breakdown.stayUSD} (~{data.budget.breakdown.stayLocal} {data.currency.localCurrency})
+            Stay: ${data.budget.breakdown.stay} (~{(data.budget.breakdown.stay * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
           </li>
         </ul>
         <p>
-          Total / Day: ${data.budget.perDayUSD} (~{data.budget.perDayLocal} {data.currency.localCurrency})
+          Total / Day: ${data.budget.perDayUSD} (~{(data.budget.perDayUSD * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
         </p>
         <p>
-          Total Trip: ${data.budget.totalUSD} (~{data.budget.totalLocal} {data.currency.localCurrency})
+          Total Trip: ${data.budget.totalUSD} (~{(data.budget.totalUSD * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
         </p>
       </Card>
 
@@ -165,6 +157,7 @@ const Results = ({ data }: ResultsProps) => {
 
       <Card title="Currency & Exchange Tips">
         <p>Local Currency: {data.currency.localCurrency}</p>
+        <p>Exchange Rate (USD → {data.currency.localCurrency}): {data.currency.exchangeRate}</p>
         <ul className="list">
           {data.currency.exchangeTips.map((tip, idx) => (
             <li key={idx}>{tip}</li>

@@ -6,23 +6,16 @@ import FeedbackButton from '../component/FeedbackButton';
 import { travelForm } from '../service/api.service';
 
 interface TravelResult {
-    visa: string; // HTML string
+    visa: string;
     budget: {
       totalUSD: number;
-      totalLocal: number;
       perDayUSD: number;
-      perDayLocal: number;
       breakdown: {
-        accommodationUSD: number;
-        accommodationLocal: number;
-        foodUSD: number;
-        foodLocal: number;
-        transportationUSD: number;
-        transportationLocal: number;
-        activitiesUSD: number;
-        activitiesLocal: number;
-        stayUSD: number;
-        stayLocal: number;
+        accommodation: number;
+        food: number;
+        transportation: number;
+        activities: number;
+        stay: number;
       };
     };
     local: {
@@ -31,6 +24,7 @@ interface TravelResult {
     };
     currency: {
       localCurrency: string;
+      exchangeRate: number; // New field
       exchangeTips: string[];
     };
     safety: {
