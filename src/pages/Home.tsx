@@ -59,6 +59,7 @@ const Home = () => {
     } catch (error) {
       console.error('API error', error);
       setResultsVisible(false);
+      setLoading(false);
     } finally {
       setLoading(false);
     }

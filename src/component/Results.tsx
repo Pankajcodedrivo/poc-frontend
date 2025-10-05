@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Card from "./Card";
+import SendEmail from "./SendEmail";
 
 interface ResultsProps {
   data: {
@@ -177,7 +178,7 @@ const Results = ({ data }: ResultsProps) => {
         <button className="export-btn" onClick={handleExportPDF}>
           Export to PDF
         </button>
-        <button className="btn email-btn">Send Email</button>
+        <SendEmail data={data} />
       </div>
     </div>
   );
