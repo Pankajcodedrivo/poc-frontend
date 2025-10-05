@@ -2,6 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Card from "./Card";
 import SendEmail from "./SendEmail";
+import { useState } from "react";
 
 interface ResultsProps {
   data: {
@@ -39,6 +40,7 @@ interface ResultsProps {
 }
 
 const Results = ({ data }: ResultsProps) => {
+  const [open, setOpen] = useState(false);
   const handleExportPDF = () => {
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
@@ -186,9 +188,13 @@ const Results = ({ data }: ResultsProps) => {
         <button className="export-btn" onClick={handleExportPDF}>
           Export to PDF
         </button>
-        <SendEmail data={data} />
+        <button className="btn email-btn" onClick={() => setOpen(true)}>Send Email</button>
       </div>
+      {open && (
+       <SendEmail data={data} setOpen={setOpen}/>
+      )}
     </div>
+    
   );
 };
 

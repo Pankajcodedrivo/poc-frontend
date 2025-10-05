@@ -4,9 +4,10 @@ import '../assets/css/FeedbackButton.scss';
 import { sendEmail } from '../service/api.service';
 interface SendEmailProps {
   data: any;
+  setOpen: (value: boolean) => void;
 }
-const SendEmail = ({ data }: SendEmailProps) => {
-  const [open, setOpen] = useState(false);
+const SendEmail = ({ data,setOpen }: SendEmailProps) => {
+ 
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState<{ email?: string }>({});
   const [loading, setLoading] = useState(false);
@@ -29,7 +30,7 @@ const SendEmail = ({ data }: SendEmailProps) => {
       setSuccess('');
       try {
         await sendEmail({email,data});
-        setSuccess('Thank you for your feedback!');
+        setSuccess('Plan details have been sent to your email.');
         setEmail('');
       } catch (error) {
         console.error(error);
@@ -42,12 +43,10 @@ const SendEmail = ({ data }: SendEmailProps) => {
 
   return (
     <>
-      <button className="btn email-btn" onClick={() => setOpen(true)}>Send Email</button>
-      {open && (
         <div className="feedback-modal-overlay" onClick={() => setOpen(false)}>
           <div className="feedback-modal" onClick={(e) => e.stopPropagation()}>
             <div className="feedback-header">
-              <h2>Feedback</h2>
+              <h2>Plan Details</h2>
               <button className="close-btn" onClick={() => setOpen(false)}>
                 <X size={18} />
               </button>
@@ -74,7 +73,6 @@ const SendEmail = ({ data }: SendEmailProps) => {
             </button>
           </div>
         </div>
-      )}
     </>
   );
 };
