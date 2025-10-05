@@ -8,14 +8,20 @@ interface ResultsProps {
     visa: string; // HTML string
     budget: {
       totalUSD: number;
+      totalLocal: number;
       perDayUSD: number;
-      perDayJPY: number;
+      perDayLocal: number;
       breakdown: {
-        accommodation: number;
-        food: number;
-        transportation: number;
-        activities: number;
-        stay: number;
+        accommodationUSD: number;
+        accommodationLocal: number;
+        foodUSD: number;
+        foodLocal: number;
+        transportationUSD: number;
+        transportationLocal: number;
+        activitiesUSD: number;
+        activitiesLocal: number;
+        stayUSD: number;
+        stayLocal: number;
       };
     };
     local: {
@@ -44,10 +50,9 @@ const Results = ({ data }: ResultsProps) => {
     const pageHeight = doc.internal.pageSize.height;
     const pageWidth = doc.internal.pageSize.width;
 
-    // helper: safely add text with page breaks
     const addText = (text: string, x: number, y: number, lineHeight = 8, fontSize = 12) => {
       doc.setFontSize(fontSize);
-      const lines = doc.splitTextToSize(text, pageWidth - x - 20); // auto-wrap
+      const lines = doc.splitTextToSize(text, pageWidth - x - 20);
       for (let i = 0; i < lines.length; i++) {
         if (y > pageHeight - 20) {
           doc.addPage();
@@ -64,40 +69,33 @@ const Results = ({ data }: ResultsProps) => {
     doc.text("Travel Planner - Results", 14, 20);
     let y = 30;
 
-    // Visa & Entry
+    // Visa
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = data.visa;
     const visaText = tempDiv.innerText || tempDiv.textContent || "";
-    doc.setFontSize(14);
     y = addText("Visa & Entry", 14, y, 10, 14);
     y = addText(visaText, 14, y);
 
-    // Budget Table
+    // Budget Table (USD + Local)
     autoTable(doc, {
       startY: y + 5,
-      head: [["Category", "Amount (USD)"]],
+      head: [["Category", "USD", data.currency.localCurrency]],
       body: [
-        ["Accommodation", data.budget.breakdown.accommodation],
-        ["Food", data.budget.breakdown.food],
-        ["Transportation", data.budget.breakdown.transportation],
-        ["Activities", data.budget.breakdown.activities],
-        ["Stay", data.budget.breakdown.stay],
-        ["Total / Day", data.budget.perDayUSD],
-        ["Total Trip (USD)", data.budget.totalUSD],
+        ["Accommodation", data.budget.breakdown.accommodationUSD, data.budget.breakdown.accommodationLocal],
+        ["Food", data.budget.breakdown.foodUSD, data.budget.breakdown.foodLocal],
+        ["Transportation", data.budget.breakdown.transportationUSD, data.budget.breakdown.transportationLocal],
+        ["Activities", data.budget.breakdown.activitiesUSD, data.budget.breakdown.activitiesLocal],
+        ["Stay", data.budget.breakdown.stayUSD, data.budget.breakdown.stayLocal],
+        ["Total / Day", data.budget.perDayUSD, data.budget.perDayLocal],
+        ["Total Trip", data.budget.totalUSD, data.budget.totalLocal],
       ],
     });
     y = (doc as any).lastAutoTable.finalY + 15;
 
     // Local Tools
     y = addText("Local Tools & Connectivity", 14, y, 10, 14);
-    y = addText("Apps:", 14, y);
-    data.local.apps.forEach((item) => {
-      y = addText(`- ${item}`, 20, y);
-    });
-    y = addText("eSIMs:", 14, y);
-    data.local.eSIM.forEach((item) => {
-      y = addText(`- ${item}`, 20, y);
-    });
+    y = addText("Apps: " + data.local.apps.join(", "), 14, y);
+    y = addText("eSIMs: " + data.local.eSIM.join(", "), 14, y);
 
     // Currency
     y = addText("Currency & Exchange Tips", 14, y + 10, 10, 14);
@@ -133,14 +131,31 @@ const Results = ({ data }: ResultsProps) => {
 
       <Card title="Budget Breakdown">
         <ul>
-          <li>Accommodation: ${data.budget.breakdown.accommodation}</li>
-          <li>Food: ${data.budget.breakdown.food}</li>
-          <li>Transportation: ${data.budget.breakdown.transportation}</li>
-          <li>Activities: ${data.budget.breakdown.activities}</li>
-          <li>Stay: ${data.budget.breakdown.stay}</li>
+          <li>
+            Accommodation: ${data.budget.breakdown.accommodationUSD} (~{data.budget.breakdown.accommodationLocal}{" "}
+            {data.currency.localCurrency})
+          </li>
+          <li>
+            Food: ${data.budget.breakdown.foodUSD} (~{data.budget.breakdown.foodLocal} {data.currency.localCurrency})
+          </li>
+          <li>
+            Transportation: ${data.budget.breakdown.transportationUSD} (~{data.budget.breakdown.transportationLocal}{" "}
+            {data.currency.localCurrency})
+          </li>
+          <li>
+            Activities: ${data.budget.breakdown.activitiesUSD} (~{data.budget.breakdown.activitiesLocal}{" "}
+            {data.currency.localCurrency})
+          </li>
+          <li>
+            Stay: ${data.budget.breakdown.stayUSD} (~{data.budget.breakdown.stayLocal} {data.currency.localCurrency})
+          </li>
         </ul>
-        <p>Total / Day: ${data.budget.perDayUSD} USD (~{data.budget.perDayJPY} JPY)</p>
-        <p>Total Trip: ${data.budget.totalUSD} USD</p>
+        <p>
+          Total / Day: ${data.budget.perDayUSD} (~{data.budget.perDayLocal} {data.currency.localCurrency})
+        </p>
+        <p>
+          Total Trip: ${data.budget.totalUSD} (~{data.budget.totalLocal} {data.currency.localCurrency})
+        </p>
       </Card>
 
       <Card title="Local Tools & Connectivity">

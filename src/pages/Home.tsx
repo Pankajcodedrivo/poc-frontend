@@ -6,36 +6,42 @@ import FeedbackButton from '../component/FeedbackButton';
 import { travelForm } from '../service/api.service';
 
 interface TravelResult {
-  visa: string;
-  budget: {
-    totalUSD: number;
-    perDayUSD: number;
-    perDayJPY: number;
-    breakdown: {
-      accommodation: number;
-      food: number;
-      transportation: number;
-      activities: number;
-      stay: number;
+    visa: string; // HTML string
+    budget: {
+      totalUSD: number;
+      totalLocal: number;
+      perDayUSD: number;
+      perDayLocal: number;
+      breakdown: {
+        accommodationUSD: number;
+        accommodationLocal: number;
+        foodUSD: number;
+        foodLocal: number;
+        transportationUSD: number;
+        transportationLocal: number;
+        activitiesUSD: number;
+        activitiesLocal: number;
+        stayUSD: number;
+        stayLocal: number;
+      };
     };
-  };
-  local: {
-    apps: string[];
-    eSIM: string[];
-  };
-  currency: {
-    localCurrency: string;
-    exchangeTips: string[];
-  };
-  safety: {
-    generalSafety: string;
-    emergencyNumbers: {
-      police: number;
-      ambulanceFire: number;
+    local: {
+      apps: string[];
+      eSIM: string[];
     };
-    travelInsurance: string;
-  };
-  mini: string[];
+    currency: {
+      localCurrency: string;
+      exchangeTips: string[];
+    };
+    safety: {
+      generalSafety: string;
+      emergencyNumbers: {
+        police: number;
+        ambulanceFire: number;
+      };
+      travelInsurance: string;
+    };
+    mini: string[];
 }
 
 const Home = () => {
