@@ -19,12 +19,19 @@ interface TravelResult {
       };
     };
     local: {
-      apps: string[];
+      apps: {
+        transportation: string[];
+        lodging: string[];
+        communication: string[];
+        budgetTravel: string[];
+        navigation: string[];
+        utilities: string[];
+      };
       eSIM: string[];
     };
     currency: {
       localCurrency: string;
-      exchangeRate: number; // New field
+      exchangeRate: number;
       exchangeTips: string[];
     };
     safety: {

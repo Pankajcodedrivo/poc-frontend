@@ -19,12 +19,19 @@ interface ResultsProps {
       };
     };
     local: {
-      apps: string[];
+      apps: {
+        transportation: string[];
+        lodging: string[];
+        communication: string[];
+        budgetTravel: string[];
+        navigation: string[];
+        utilities: string[];
+      };
       eSIM: string[];
     };
     currency: {
       localCurrency: string;
-      exchangeRate: number; // New field
+      exchangeRate: number;
       exchangeTips: string[];
     };
     safety: {
@@ -41,6 +48,7 @@ interface ResultsProps {
 
 const Results = ({ data }: ResultsProps) => {
   const [open, setOpen] = useState(false);
+
   const handleExportPDF = () => {
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
@@ -88,9 +96,12 @@ const Results = ({ data }: ResultsProps) => {
     });
     y = (doc as any).lastAutoTable.finalY + 15;
 
-    // Local Tools
+    // Local Apps by Category
     y = addText("Local Tools & Connectivity", 14, y, 10, 14);
-    y = addText("Apps: " + data.local.apps.join(", "), 14, y);
+    const appCategories = Object.entries(data.local.apps);
+    for (const [category, apps] of appCategories) {
+      y = addText(`${category.charAt(0).toUpperCase() + category.slice(1)}: ${apps.join(", ")}`, 14, y);
+    }
     y = addText("eSIMs: " + data.local.eSIM.join(", "), 14, y);
 
     // Currency
@@ -128,33 +139,32 @@ const Results = ({ data }: ResultsProps) => {
 
       <Card title="Budget Breakdown">
         <ul>
-          <li>
-            Accommodation: ${data.budget.breakdown.accommodation} (~{(data.budget.breakdown.accommodation * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
-          </li>
-          <li>
-            Food: ${data.budget.breakdown.food} (~{(data.budget.breakdown.food * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
-          </li>
-          <li>
-            Transportation: ${data.budget.breakdown.transportation} (~{(data.budget.breakdown.transportation * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
-          </li>
-          <li>
-            Activities: ${data.budget.breakdown.activities} (~{(data.budget.breakdown.activities * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
-          </li>
-          <li>
-            Stay: ${data.budget.breakdown.stay} (~{(data.budget.breakdown.stay * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
-          </li>
+          {Object.entries(data.budget.breakdown).map(([key, value]) => (
+            <li key={key}>
+              {key.charAt(0).toUpperCase() + key.slice(1)}: ${value} (~
+              {(value * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
+            </li>
+          ))}
         </ul>
         <p>
-          Total / Day: ${data.budget.perDayUSD} (~{(data.budget.perDayUSD * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
+          Total / Day: ${data.budget.perDayUSD} (~
+          {(data.budget.perDayUSD * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
         </p>
         <p>
-          Total Trip: ${data.budget.totalUSD} (~{(data.budget.totalUSD * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
+          Total Trip: ${data.budget.totalUSD} (~
+          {(data.budget.totalUSD * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
         </p>
       </Card>
 
       <Card title="Local Tools & Connectivity">
-        <p>Apps: {data.local.apps.join(", ")}</p>
-        <p>eSIMs: {data.local.eSIM.join(", ")}</p>
+        {Object.entries(data.local.apps).map(([category, apps]) => (
+          <p key={category}>
+            <strong>{category.charAt(0).toUpperCase() + category.slice(1)}:</strong> {apps.join(", ")}
+          </p>
+        ))}
+        <p>
+          <strong>eSIMs:</strong> {data.local.eSIM.join(", ")}
+        </p>
       </Card>
 
       <Card title="Currency & Exchange Tips">
@@ -188,13 +198,13 @@ const Results = ({ data }: ResultsProps) => {
         <button className="export-btn" onClick={handleExportPDF}>
           Export to PDF
         </button>
-        <button className="btn email-btn" onClick={() => setOpen(true)}>Send Email</button>
+        <button className="btn email-btn" onClick={() => setOpen(true)}>
+          Send Email
+        </button>
       </div>
-      {open && (
-       <SendEmail data={data} setOpen={setOpen}/>
-      )}
+
+      {open && <SendEmail data={data} setOpen={setOpen} />}
     </div>
-    
   );
 };
 
