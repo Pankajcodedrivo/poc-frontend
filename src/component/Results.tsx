@@ -15,10 +15,11 @@ interface ResultsProps {
         food: number;
         transportation: number;
         activities: number;
-        stay: number;
+        miscellaneous: number;
       };
     };
     local: {
+      destination: string;
       apps: {
         transportation: string[];
         lodging: string[];
@@ -28,20 +29,22 @@ interface ResultsProps {
         utilities: string[];
       };
       eSIM: string[];
-    };
-    currency: {
+    }[];
+    currencies: {
+      destination: string;
       localCurrency: string;
       exchangeRate: number;
       exchangeTips: string[];
-    };
+    }[];
     safety: {
+      destination: string;
       generalSafety: string;
       emergencyNumbers: {
         police: number;
         ambulanceFire: number;
       };
       travelInsurance: string;
-    };
+    }[];
     mini: string[];
   };
 }
@@ -68,59 +71,92 @@ const Results = ({ data }: ResultsProps) => {
       return y;
     };
 
-    // Title
+    let y = 20;
     doc.setFontSize(18);
-    doc.text("Travel Planner - Results", 14, 20);
-    let y = 30;
+    doc.text("Travel Planner - Results", 14, y);
+    y += 10;
 
     // Visa
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = data.visa;
-    const visaText = tempDiv.innerText || tempDiv.textContent || "";
+    const visaText = tempDiv.innerText || "";
     y = addText("Visa & Entry", 14, y, 10, 14);
     y = addText(visaText, 14, y);
 
-    // Budget Table (USD + Local)
+    // Budget Table
     autoTable(doc, {
       startY: y + 5,
-      head: [["Category", "USD", data.currency.localCurrency]],
+      head: [["Category", "USD"]],
       body: [
-        ["Accommodation", data.budget.breakdown.accommodation, (data.budget.breakdown.accommodation * data.currency.exchangeRate).toFixed(2)],
-        ["Food", data.budget.breakdown.food, (data.budget.breakdown.food * data.currency.exchangeRate).toFixed(2)],
-        ["Transportation", data.budget.breakdown.transportation, (data.budget.breakdown.transportation * data.currency.exchangeRate).toFixed(2)],
-        ["Activities", data.budget.breakdown.activities, (data.budget.breakdown.activities * data.currency.exchangeRate).toFixed(2)],
-        ["Stay", data.budget.breakdown.stay, (data.budget.breakdown.stay * data.currency.exchangeRate).toFixed(2)],
-        ["Total / Day", data.budget.perDayUSD, (data.budget.perDayUSD * data.currency.exchangeRate).toFixed(2)],
-        ["Total Trip", data.budget.totalUSD, (data.budget.totalUSD * data.currency.exchangeRate).toFixed(2)],
+        ["Accommodation", data.budget.breakdown.accommodation],
+        ["Food", data.budget.breakdown.food],
+        ["Transportation", data.budget.breakdown.transportation],
+        ["Activities", data.budget.breakdown.activities],
+        ["Miscellaneous", data.budget.breakdown.miscellaneous],
+        ["Total / Day", data.budget.perDayUSD],
+        ["Total Trip", data.budget.totalUSD],
       ],
     });
-    y = (doc as any).lastAutoTable.finalY + 15;
+    y = (doc as any).lastAutoTable.finalY + 10;
 
-    // Local Apps by Category
+    // Local Apps (combined)
+    const combinedApps: { [key: string]: Set<string> } = {};
+    data.local.forEach(localItem => {
+      Object.entries(localItem.apps).forEach(([category, apps]) => {
+        if (!combinedApps[category]) combinedApps[category] = new Set();
+        apps.forEach(app => combinedApps[category].add(app));
+      });
+    });
     y = addText("Local Tools & Connectivity", 14, y, 10, 14);
-    const appCategories = Object.entries(data.local.apps);
-    for (const [category, apps] of appCategories) {
-      y = addText(`${category.charAt(0).toUpperCase() + category.slice(1)}: ${apps.join(", ")}`, 14, y);
-    }
-    y = addText("eSIMs: " + data.local.eSIM.join(", "), 14, y);
+    Object.entries(combinedApps).forEach(([category, appsSet]) => {
+      y = addText(
+        `${category.charAt(0).toUpperCase() + category.slice(1)}: ${Array.from(
+          appsSet
+        ).join(", ")}`,
+        14,
+        y
+      );
+    });
+    const combinedESIMs = Array.from(new Set(data.local.flatMap(l => l.eSIM)));
+    y = addText(`eSIMs: ${combinedESIMs.join(", ")}`, 14, y);
 
-    // Currency
-    y = addText("Currency & Exchange Tips", 14, y + 10, 10, 14);
-    y = addText(`Local Currency: ${data.currency.localCurrency}`, 14, y);
-    y = addText(`Exchange Rate (USD → ${data.currency.localCurrency}): ${data.currency.exchangeRate}`, 14, y);
-    data.currency.exchangeTips.forEach((tip) => {
-      y = addText(`- ${tip}`, 14, y);
+    // Currencies
+    y = addText("Currencies & Exchange Tips", 14, y + 10, 10, 14);
+    data.currencies.forEach((c, idx) => {
+      y = addText(
+        `${c.localCurrency} (1 USD = ${c.exchangeRate} ${c.localCurrency})`,
+        14,
+        y
+      );
+      y = addText(
+          `(${data.budget.totalUSD} USD = ${(data.budget.totalUSD * c.exchangeRate).toFixed(2)} ${c.localCurrency})`,
+          14,
+          y
+      );
+      c.exchangeTips.forEach(tip => {
+        y = addText(`- ${tip}`, 14, y);
+      });
+      if (idx < data.currencies.length - 1) y = addText("------------------------------", 14, y);
     });
 
     // Safety
     y = addText("Safety & Emergency", 14, y + 10, 10, 14);
-    y = addText(`General Safety: ${data.safety.generalSafety}`, 14, y);
-    y = addText(
-      `Emergency Numbers: Police - ${data.safety.emergencyNumbers.police}, Ambulance/Fire - ${data.safety.emergencyNumbers.ambulanceFire}`,
-      14,
-      y
-    );
-    y = addText(`Travel Insurance: ${data.safety.travelInsurance}`, 14, y);
+    data.safety.forEach((s, idx) => {
+      y = addText(s.generalSafety, 14, y);
+      y = addText(
+        `Emergency — Police: ${s.emergencyNumbers.police}, Ambulance/Fire: ${s.emergencyNumbers.ambulanceFire}`,
+        14,
+        y
+      );
+        // 🧩 Convert the travelInsurance HTML to plain text for PDF
+      const tempTravelDiv = document.createElement("div");
+      tempTravelDiv.innerHTML = s.travelInsurance;
+      const travelText = tempTravelDiv.innerText || "";
+      // 🧾 Add Travel Insurance section
+      y = addText("Travel Insurance:", 14, y, 10, 14);
+      y = addText(travelText, 14, y);
+      if (idx < data.safety.length - 1) y = addText("------------------------------", 14, y);
+    });
 
     // Mini Plan
     y = addText("Mini Plan", 14, y + 10, 10, 14);
@@ -133,59 +169,97 @@ const Results = ({ data }: ResultsProps) => {
 
   return (
     <div className="results">
-      <Card title="">
+      {/* Visa */}
+      <Card title="Visa & Entry">
         <div dangerouslySetInnerHTML={{ __html: data.visa }} />
       </Card>
 
+      {/* Budget */}
       <Card title="Budget Breakdown">
         <ul>
           {Object.entries(data.budget.breakdown).map(([key, value]) => (
             <li key={key}>
-              {key.charAt(0).toUpperCase() + key.slice(1)}: ${value} (~
-              {(value * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
+              {key.charAt(0).toUpperCase() + key.slice(1)}: ${value}
             </li>
           ))}
         </ul>
+        <p>Total / Day: ${data.budget.perDayUSD}</p>
+        <p>Total Trip: ${data.budget.totalUSD}</p>
+      </Card>
+
+      {/* Local Apps — separate per destination with HR after div */}
+       <Card title="Local Tools & Connectivity">
+        {(() => {
+          // Combine all apps by category
+          const combinedApps: { [key: string]: Set<string> } = {};
+          data.local.forEach(localItem => {
+            Object.entries(localItem.apps).forEach(([category, apps]) => {
+              if (!combinedApps[category]) combinedApps[category] = new Set();
+              apps.forEach(app => combinedApps[category].add(app));
+            });
+          });
+
+          return Object.entries(combinedApps).map(([category, appsSet]) => (
+            <p key={category}>
+              <strong>{category.charAt(0).toUpperCase() + category.slice(1)}:</strong>{" "}
+              {Array.from(appsSet).join(", ")}
+            </p>
+          ));
+        })()}
+
         <p>
-          Total / Day: ${data.budget.perDayUSD} (~
-          {(data.budget.perDayUSD * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
-        </p>
-        <p>
-          Total Trip: ${data.budget.totalUSD} (~
-          {(data.budget.totalUSD * data.currency.exchangeRate).toFixed(2)} {data.currency.localCurrency})
+          <strong>eSIMs:</strong>{" "}
+          {Array.from(
+            new Set(data.local.flatMap(localItem => localItem.eSIM))
+          ).join(", ")}
         </p>
       </Card>
 
-      <Card title="Local Tools & Connectivity">
-        {Object.entries(data.local.apps).map(([category, apps]) => (
-          <p key={category}>
-            <strong>{category.charAt(0).toUpperCase() + category.slice(1)}:</strong> {apps.join(", ")}
-          </p>
+
+      {/* Currencies — separate per destination with HR after div */}
+      <Card title="Currencies & Exchange Tips">
+        {data.currencies.map((c, idx) => (
+          <div key={idx}>
+            <div style={{ marginBottom: "10px" }}>
+              <p>
+                {c.localCurrency} (1 USD = {c.exchangeRate} {c.localCurrency})
+              </p>
+              <p>
+                ({data.budget.totalUSD} USD =  {(data.budget.totalUSD * c.exchangeRate).toFixed(2)} {c.localCurrency})
+              </p>
+              <ul>
+                {c.exchangeTips.map((tip, t) => (
+                  <li key={t}>{tip}</li>
+                ))}
+              </ul>
+            </div>
+            {idx < data.currencies.length - 1 && <hr style={{ marginBottom: "10px" }} />}
+          </div>
         ))}
-        <p>
-          <strong>eSIMs:</strong> {data.local.eSIM.join(", ")}
-        </p>
       </Card>
 
-      <Card title="Currency & Exchange Tips">
-        <p>Local Currency: {data.currency.localCurrency}</p>
-        <p>Exchange Rate (USD → {data.currency.localCurrency}): {data.currency.exchangeRate}</p>
-        <ul className="list">
-          {data.currency.exchangeTips.map((tip, idx) => (
-            <li key={idx}>{tip}</li>
-          ))}
-        </ul>
-      </Card>
-
+      {/* Safety — separate per destination with HR after div */}
       <Card title="Safety & Emergency">
-        <p>{data.safety.generalSafety}</p>
-        <p>
-          Emergency Numbers - Police: {data.safety.emergencyNumbers.police}, Ambulance/Fire:{" "}
-          {data.safety.emergencyNumbers.ambulanceFire}
-        </p>
-        <p>Travel Insurance: {data.safety.travelInsurance}</p>
+        {data.safety.map((s, idx) => (
+          <div key={idx}>
+            <div style={{ marginBottom: "10px" }}>
+              <p>{s.generalSafety}</p>
+              <p>
+                Emergency — Police: {s.emergencyNumbers.police}, Ambulance/Fire:{" "}
+                {s.emergencyNumbers.ambulanceFire}
+              </p>
+
+              <div>
+                <strong>Travel Insurance:</strong>
+                <div dangerouslySetInnerHTML={{ __html: s.travelInsurance }} />
+              </div>
+            </div>
+            {idx < data.safety.length - 1 && <hr style={{ marginBottom: "10px" }} />}
+          </div>
+        ))}
       </Card>
 
+      {/* Mini Plan */}
       <Card title="Mini Plan">
         <ul>
           {data.mini.map((item, idx) => (
@@ -194,6 +268,7 @@ const Results = ({ data }: ResultsProps) => {
         </ul>
       </Card>
 
+      {/* Actions */}
       <div className="actions">
         <button className="export-btn" onClick={handleExportPDF}>
           Export to PDF
