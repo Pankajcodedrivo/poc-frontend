@@ -39,6 +39,7 @@ interface TravelResult {
   safety: {
     destination: string;
     generalSafety: string;
+    scamsAndReviews:string;
     emergencyNumbers: {
       police: number;
       ambulanceFire: number;

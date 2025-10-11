@@ -44,7 +44,7 @@ const SendEmail = ({ data,setOpen }: SendEmailProps) => {
   return (
     <>
         <div className="feedback-modal-overlay" onClick={() => setOpen(false)}>
-          <div className="feedback-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="feedback-modal small-width" onClick={(e) => e.stopPropagation()}>
             <div className="feedback-header">
               <h2>Plan Details</h2>
               <button className="close-btn" onClick={() => setOpen(false)}>

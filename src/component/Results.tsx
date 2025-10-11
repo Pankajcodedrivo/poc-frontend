@@ -39,6 +39,7 @@ interface ResultsProps {
     safety: {
       destination: string;
       generalSafety: string;
+      scamsAndReviews:string;
       emergencyNumbers: {
         police: number;
         ambulanceFire: number;
@@ -143,6 +144,12 @@ const Results = ({ data }: ResultsProps) => {
     y = addText("Safety & Emergency", 14, y + 10, 10, 14);
     data.safety.forEach((s, idx) => {
       y = addText(s.generalSafety, 14, y);
+
+      const scamsAndReviewsDiv = document.createElement("div");
+      scamsAndReviewsDiv.innerHTML = s.scamsAndReviews;
+      const scamsAndReviewsText = scamsAndReviewsDiv.innerText || "";
+      y = addText(scamsAndReviewsText, 14, y);
+ 
       y = addText(
         `Emergency — Police: ${s.emergencyNumbers.police}, Ambulance/Fire: ${s.emergencyNumbers.ambulanceFire}`,
         14,
@@ -244,6 +251,7 @@ const Results = ({ data }: ResultsProps) => {
           <div key={idx}>
             <div style={{ marginBottom: "10px" }}>
               <p>{s.generalSafety}</p>
+              <div dangerouslySetInnerHTML={{ __html: s.scamsAndReviews }} />
               <p>
                 Emergency — Police: {s.emergencyNumbers.police}, Ambulance/Fire:{" "}
                 {s.emergencyNumbers.ambulanceFire}
