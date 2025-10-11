@@ -100,6 +100,7 @@ const FeedbackButton = () => {
               checked={form[key] === opt}
               onChange={() => handleChange(key, opt)}
             />
+            <span className="checkmark"></span>
             {opt}
           </label>
         ))}

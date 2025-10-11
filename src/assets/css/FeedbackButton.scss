@@ -36,9 +36,10 @@
     max-width: 400px;
 }
 .feedback-modal {
-  background-color: #e4e4ea;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e5e7eb;
   padding: 2rem;
-  border-radius: 1rem;
+  border-radius: 2rem;
   width: 90%;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -47,7 +48,9 @@
   position: relative;
   max-height: 90vh;
   overflow: hidden;
-  
+  @media only screen and (max-width: 767px) {
+    padding: 1rem;
+  }
   .feedback-header {
     display: flex;
     justify-content: center;
@@ -113,10 +116,14 @@
     margin-bottom: 1rem;
 
     label {
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 0.3rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
       color: #111827;
+      margin-bottom: 10px;
+      @media only screen and (max-width: 767px) {
+        font-size: 0.9rem;
+      }
     }
 
     input,
@@ -145,6 +152,7 @@
   display: flex;
   flex-wrap: wrap; // wrap if too many options
   gap: 10px;       // spacing between radio buttons
+  flex-direction: column;
 }
 
 .radio-label {
@@ -152,6 +160,8 @@
   align-items: center;
   gap: 0.3rem;
   font-size: 0.88rem;
+  font-weight: 400;
+  margin-bottom: 0;
 
   input[type='radio'] {
     accent-color: #6366f1;
