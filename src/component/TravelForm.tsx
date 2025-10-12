@@ -64,7 +64,7 @@ const TravelForm = ({ onSubmit }: FormProps) => {
         />
         <InputField
           icon={Globe}
-          placeholder="Passport Number"
+          placeholder="Country of origin"
           value={passport}
           onChange={setPassport}
           error={errors.passport}
